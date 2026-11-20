@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TriageLab – ABCDE Patient Assessment Trainer</title>
+<meta name="description" content="Practice ABCDE patient assessment and emergency triage decisions with interactive training scenarios.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F6;--surface:#fff;--ink:#11292B;--muted:#4C6366;--line:#D3DEDE;
+  --brand:#0B6E6E;--on-brand:#fff;
+  --red:#C62828;--amber:#9A5B00;--green:#1E7A3C;
+  --head:"Bricolage Grotesque",system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1517;--surface:#142124;--ink:#E6F1F0;--muted:#9BB4B4;--line:#243538;
+    --brand:#4FD1C5;--on-brand:#04201F;--red:#FF7B72;--amber:#F2B64B;--green:#5ED08A;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1517;--surface:#142124;--ink:#E6F1F0;--muted:#9BB4B4;--line:#243538;
+  --brand:#4FD1C5;--on-brand:#04201F;--red:#FF7B72;--amber:#F2B64B;--green:#5ED08A;color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.6 var(--body);transition:background .2s,color .2s}
+h1,h2,h3{font-family:var(--head);line-height:1.15;margin:0}
+a{color:var(--brand)}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line);background:var(--surface)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;max-width:1040px;margin:0 auto}
+.brand{font:800 1.25rem var(--head);text-decoration:none;color:var(--ink)}
+.brand span{color:var(--brand)}
+nav{display:flex;align-items:center;gap:18px}
+nav a{color:var(--muted);text-decoration:none;font-weight:500}
+nav a:hover{color:var(--ink)}
+.toggle{background:none;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:.9rem;cursor:pointer}
+.toggle:hover{border-color:var(--brand)}
+.hero{padding:56px 0 36px}
+.hero h1{font-size:clamp(2.2rem,6vw,3.8rem);font-weight:800;max-width:14ch}
+.hero p{color:var(--muted);max-width:56ch;font-size:1.1rem;margin:16px 0 24px}
+.btn{display:inline-block;background:var(--brand);color:var(--on-brand);border:0;border-radius:10px;padding:12px 22px;font:700 1rem var(--body);cursor:pointer;text-decoration:none}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.abcde{display:grid;grid-template-columns:repeat(5,1fr);margin-top:8px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+.abcde div{padding:18px 16px;border-right:1px solid var(--line)}
+.abcde div:last-child{border:0}
+.abcde b{display:block;font:800 3rem/1 var(--head);color:var(--brand)}
+.abcde strong{display:block;margin-top:6px}
+.abcde small{color:var(--muted);display:block;line-height:1.4;margin-top:4px}
+section{padding:40px 0}
+h2{font-size:clamp(1.6rem,4vw,2.2rem);margin-bottom:8px}
+.lead{color:var(--muted);margin:0 0 24px;max-width:62ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tab{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;font:600 .95rem var(--body);cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.case{margin:0 0 16px;color:var(--muted)}
+.case strong{color:var(--ink)}
+.prog{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.prog span{min-width:38px;text-align:center;padding:4px 8px;border-radius:8px;border:1px solid var(--line);font:700 .9rem var(--head);color:var(--muted)}
+.prog .now{border-color:var(--brand);color:var(--brand)}
+.prog .ok{background:color-mix(in srgb,var(--green) 18%,var(--surface));border-color:var(--green);color:var(--green)}
+.prog .bad{background:color-mix(in srgb,var(--red) 18%,var(--surface));border-color:var(--red);color:var(--red)}
+.step-h{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.step-h b{font:800 2.6rem/1 var(--head);color:var(--brand)}
+.step-h h3{font-size:1.3rem}
+.monitor{background:color-mix(in srgb,var(--brand) 8%,var(--surface));border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.monitor p{margin:0 0 10px}
+.vit{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0}
+.vit div{border-left:3px solid var(--brand);padding-left:10px}
+.vit dt{font-size:.8rem;color:var(--muted)}
+.vit dd{margin:0;font:700 1.05rem var(--head);font-variant-numeric:tabular-nums}
+.q{font-weight:700;margin:0 0 10px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--brand)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--green);background:color-mix(in srgb,var(--green) 14%,var(--surface))}
+.opt.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 14%,var(--surface))}
+.fb{margin-top:14px;padding:14px 16px;border-radius:10px;border-left:4px solid var(--brand);background:color-mix(in srgb,var(--brand) 8%,var(--surface))}
+.fb.good{border-color:var(--green)}.fb.miss{border-color:var(--red)}
+.fb p{margin:0 0 12px}
+.res{text-align:center;padding:12px 0}
+.res .big{font:800 3.4rem/1 var(--head);color:var(--brand)}
+.res .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.lvl{background:var(--surface);border:1px solid var(--line);border-top:6px solid;border-radius:14px;padding:18px}
+.lvl h3{font-size:1.2rem;margin-bottom:6px}
+.lvl p{margin:0;color:var(--muted)}
+.lvl.r{border-top-color:var(--red)}.lvl.r h3{color:var(--red)}
+.lvl.y{border-top-color:var(--amber)}.lvl.y h3{color:var(--amber)}
+.lvl.g{border-top-color:var(--green)}.lvl.g h3{color:var(--green)}
+.warn{border:1px solid var(--red);background:color-mix(in srgb,var(--red) 8%,var(--surface));border-radius:12px;padding:14px 16px;color:var(--ink)}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:.9rem}
+footer p{margin:0 0 8px}
+@media (max-width:760px){
+  .abcde{grid-template-columns:1fr 1fr}
+  .abcde div{border-bottom:1px solid var(--line)}
+  nav a{display:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="brand" href="#top">Triage<span>Lab</span></a>
+    <nav>
+      <a href="#trainer">Trainer</a>
+      <a href="#levels">Triage levels</a>
+      <a href="#about">About</a>
+      <button class="toggle" id="theme" type="button" aria-label="Switch between dark and light mode">Dark mode</button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <div class="hero">
+      <h1>Assess first. Then decide.</h1>
+      <p>Practice the ABCDE patient assessment on realistic emergency cases, then choose the correct triage level. Every answer comes with a short medical explanation.</p>
+      <a class="btn" href="#trainer">Start training</a>
+    </div>
+    <div class="abcde" aria-label="The ABCDE approach">
+      <div><b>A</b><strong>Airway</strong><small>Is it open and clear? Can the patient speak?</small></div>
+      <div><b>B</b><strong>Breathing</strong><small>Rate, effort, oxygen level, colour.</small></div>
+      <div><b>C</b><strong>Circulation</strong><small>Pulse, skin, capillary refill, bleeding.</small></div>
+      <div><b>D</b><strong>Disability</strong><small>Level of response (AVPU), pupils, pain.</small></div>
+      <div><b>E</b><strong>Exposure</strong><small>Look for hidden injuries. Keep the patient warm.</small></div>
+    </div>
+  </div>
+
+  <section id="trainer">
+    <div class="wrap">
+      <h2>Patient assessment trainer</h2>
+      <p class="lead">Choose a case. Work through A to E, then make the final triage decision. All patients are fictional.</p>
+      <div class="panel">
+        <div class="tabs" id="tabs"></div>
+        <div id="stage" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="levels">
+    <div class="wrap">
+      <h2>Triage levels</h2>
+      <p class="lead">Triage means sorting patients by how quickly they need help.</p>
+      <div class="levels">
+        <div class="lvl r"><h3>Red: Immediate</h3><p>Life-threatening problem with airway, breathing or circulation. Call the emergency number now and start first aid.</p></div>
+        <div class="lvl y"><h3>Yellow: Urgent</h3><p>Serious but currently stable. Give first aid, monitor closely, and be ready to call for help if the patient gets worse.</p></div>
+        <div class="lvl g"><h3>Green: Minor</h3><p>No threat to life. Basic first aid and routine medical follow-up.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap">
+      <h2>About this project</h2>
+      <p class="lead">Task 10: Smart Emergency Triage &amp; Patient Assessment, part of the First Aid &amp; Artificial Intelligence course project. It trains users to assess a patient with ABCDE and recognise cases that need urgent medical help.</p>
+      <div class="warn"><strong>Educational use only.</strong> This site does not replace first aid training or professional medical care. In a real emergency, call your local emergency number (123 in Egypt).</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Team: [Add your team name and members here]</p>
+    <p>Scenarios use fictional, anonymous data. No personal data is collected or stored.</p>
+  </div>
+</footer>
+
+<script>
+const S=[
+{t:"Collapsed adult",lvl:0,
+intro:"A man, about 55, collapsed suddenly in a shopping mall. He is lying on the floor and does not move.",
+steps:[
+{k:"A",n:"Airway",f:"Eyes closed. No response to your voice or a shoulder tap. He makes a loud snoring sound.",v:[["Response","None"],["Sound","Snoring"]],
+q:"What do you do for the airway?",o:["Pour a little water into his mouth","Open the airway with head-tilt and chin-lift","Leave him as found and wait for help"],a:1,
+w:"Snoring means the tongue is partly blocking the airway. Head-tilt and chin-lift lifts the tongue clear. Use a jaw thrust instead if a neck injury is suspected."},
+{k:"B",n:"Breathing",f:"You look, listen and feel for 10 seconds. You see only slow, occasional gasps.",v:[["Breathing","Gasps only"],["Lips","Blue"],["SpO\u2082","Not measurable"]],
+q:"How do you interpret this?",o:["Normal breathing. Keep watching.","Not breathing normally. Call the emergency number and send for an AED.","Give him an asthma inhaler"],a:1,
+w:"Occasional gasps (agonal breathing) are not normal breathing. They are a sign of cardiac arrest. Call early and get an AED."},
+{k:"C",n:"Circulation",f:"No pulse felt after 10 seconds. Skin is pale and cool.",v:[["Pulse","Not felt"],["Skin","Pale, cool"],["Cap. refill","> 5 s"]],
+q:"What is the correct action?",o:["Raise his legs and wait for the ambulance","Give him an aspirin to chew","Start chest compressions: 30 compressions, then 2 breaths"],a:2,
+w:"With no signs of circulation, start CPR: 100\u2013120 compressions per minute, 5\u20136 cm deep, full chest recoil. If you cannot give breaths, do hands-only compressions."},
+{k:"D",n:"Disability",f:"No response at all. Pupils are wide and do not react to light.",v:[["AVPU","U (Unresponsive)"],["Pupils","Wide, fixed"]],
+q:"What do you do about his level of consciousness?",o:["Stop CPR to examine his pupils","Note \u201cU\u201d on the AVPU scale and keep doing CPR","Slap his face to wake him"],a:1,
+w:"AVPU (Alert, Voice, Pain, Unresponsive) is a quick scale. Here it is already clear: U. Do not interrupt CPR for further checks."},
+{k:"E",n:"Exposure",f:"The AED arrives. His shirt is wet with sweat.",v:[["AED","Ready"],["Chest","Covered, wet"]],
+q:"What do you do next?",o:["Expose the chest, dry it, and attach the AED pads","Stick the pads on over his shirt to save time","Cover him with a blanket first"],a:0,
+w:"AED pads must touch dry, bare skin to work. Expose and dry the chest, attach the pads, and follow the AED voice prompts."}],
+tf:"You found a patient who is unresponsive, not breathing normally, and has no pulse.",
+tw:"This is a cardiac arrest, a direct threat to life. Call the emergency number and start CPR and AED use immediately.",ta:0},
+
+{t:"Breathless teenager",lvl:1,
+intro:"A girl, 16, with known asthma became short of breath after running in cold air. She sits on a bench, leaning forward.",
+steps:[
+{k:"A",n:"Airway",f:"She speaks in short phrases of 4\u20135 words. You hear wheezing when she breathes out. No high-pitched noise on breathing in.",v:[["Speech","Short phrases"],["Wheeze","Yes"],["Stridor","No"]],
+q:"What do you do for the airway?",o:["Lay her flat on her back","Do a head-tilt and chin-lift","Keep her sitting upright and calm. The airway is open."],a:2,
+w:"She can talk, so the airway is open. Sitting upright and leaning forward makes breathing easier. Lying flat makes it harder."},
+{k:"B",n:"Breathing",f:"Fast breathing with visible effort in the neck muscles. Oxygen level is low.",v:[["Resp. rate","26 /min"],["SpO\u2082","92 %"],["Effort","Neck muscles"]],
+q:"What is the best first aid action?",o:["Help her use her own reliever inhaler as prescribed, with a spacer if available","Give her cough syrup","Have her breathe into a paper bag"],a:0,
+w:"A reliever inhaler opens narrowed airways. Follow her asthma action plan or the label. Breathing into a paper bag is unsafe and does not help asthma."},
+{k:"C",n:"Circulation",f:"Pulse is fast but strong. Skin is warm. No bleeding.",v:[["Pulse","112 /min"],["Cap. refill","2 s"],["Skin","Warm"]],
+q:"How do you read this?",o:["Cardiac arrest. Start compressions.","A faster pulse is expected with breathlessness. Keep monitoring.","Apply a tourniquet"],a:1,
+w:"Breathlessness and stress raise the heart rate. Good capillary refill and warm skin show circulation is still adequate."},
+{k:"D",n:"Disability",f:"She is awake, anxious and answers clearly. No confusion.",v:[["AVPU","A (Alert)"],["Pain","Chest tight"]],
+q:"What should you watch for?",o:["Nothing. Alert means she is safe.","Drowsiness, confusion or exhaustion. These mean she is getting worse.","Give her a sedative to calm her"],a:1,
+w:"Falling alertness in an asthma attack is a warning sign of low oxygen. Never give sedatives."},
+{k:"E",n:"Exposure",f:"No rash, no swelling of the lips or face. Temperature is normal. Her scarf is tight around her neck.",v:[["Rash","None"],["Face swelling","None"],["Temp.","36.8 \u00b0C"]],
+q:"What do you do?",o:["Skip this step","Loosen tight clothing, check for allergy signs, and move her away from triggers","Cover her face with a blanket"],a:1,
+w:"Check for allergic signs, because severe allergy can also cause breathing problems. Loosen tight clothing and remove triggers such as cold air or dust."}],
+tf:"She is alert and talking in phrases, with SpO\u2082 92 % and a wheeze. She is improving only if the inhaler works.",
+tw:"This is a moderate attack: urgent but stable. Treat now, monitor closely, and call the emergency number if there is no improvement, she cannot speak, or she turns blue or drowsy.",ta:1},
+
+{t:"Twisted ankle",lvl:2,
+intro:"A boy, 14, twisted his ankle during a football match. He limps off the pitch holding his foot.",
+steps:[
+{k:"A",n:"Airway",f:"He talks normally and tells you what happened.",v:[["Speech","Normal"],["Noises","None"]],
+q:"What is your assessment?",o:["Airway is clear. No action needed.","Perform a jaw thrust","Give back blows"],a:0,
+w:"A patient who speaks in full sentences has an open airway. Moving on quickly is part of good assessment."},
+{k:"B",n:"Breathing",f:"Breathing is quiet and easy.",v:[["Resp. rate","16 /min"],["SpO\u2082","99 %"],["Effort","None"]],
+q:"What is your assessment?",o:["Give rescue breaths","Breathing is normal. No action needed.","Give an inhaler"],a:1,
+w:"A normal adult or teenager breathes about 12\u201320 times per minute, with SpO\u2082 of 94 % or more."},
+{k:"C",n:"Circulation",f:"No bleeding. His toes are warm and pink.",v:[["Pulse","82 /min"],["Cap. refill","1 s"],["Bleeding","None"]],
+q:"What is your assessment?",o:["Start CPR","Apply a tourniquet above the knee","Normal. Good blood supply to the foot."],a:2,
+w:"Strong pulse, fast capillary refill and warm toes show that blood flow to the injured foot is fine."},
+{k:"D",n:"Disability",f:"He is awake and oriented. He rates his pain 4 out of 10.",v:[["AVPU","A (Alert)"],["Pain score","4 / 10"]],
+q:"What do you do?",o:["Give him a stranger\u2019s strong painkiller","Reassure him and ask about his pain","Tell him to run it off"],a:1,
+w:"Reassure and ask about pain. Never give medicine that was not prescribed for the patient. Running on an injury can make it worse."},
+{k:"E",n:"Exposure",f:"Swelling and bruising on the outer ankle. No deformity, no open wound. He can take a few steps.",v:[["Swelling","Yes"],["Deformity","None"],["Open wound","None"]],
+q:"What is the correct first aid?",o:["Rest, ice wrapped in cloth for 15\u201320 min, compression bandage, elevation","Massage it hard and apply heat","Pull the foot to \u201cclick it back\u201d"],a:0,
+w:"RICE (rest, ice, compression, elevation) reduces swelling and pain. Heat and hard massage increase swelling. Never pull on an injured joint."}],
+tf:"All ABCD checks are normal. The only problem is a swollen ankle with no deformity or open wound.",
+tw:"This is a minor injury. Give first aid and arrange a routine check-up. See a doctor sooner if he cannot bear weight, pain gets worse, or the ankle looks deformed.",ta:2}
+];
+const LV=["Red: immediate. Call emergency services now.","Yellow: urgent. Treat now and be ready to escalate.","Green: minor. First aid and routine follow-up."];
+const $=id=>document.getElementById(id);
+let si=0,st=0,score=0,res=[],done=false;
+
+function cur(){
+  const c=S[si];
+  if(st<5)return c.steps[st];
+  return {k:"T",n:"Triage decision",f:c.tf,v:[],q:"What triage level do you assign?",o:LV,a:c.ta,w:c.tw};
+}
+function start(i){si=i;st=0;score=0;res=[];done=false;render();}
+function tabs(){
+  $("tabs").innerHTML=S.map((c,i)=>`<button class="tab" type="button" aria-pressed="${i===si}" data-i="${i}">${c.t}</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>start(+b.dataset.i));
+}
+function prog(){
+  const L=["A","B","C","D","E","T"];
+  return `<div class="prog" aria-label="Progress">`+L.map((l,i)=>{
+    let c=i<res.length?(res[i]?"ok":"bad"):(i===st?"now":"");
+    return `<span class="${c}">${l}</span>`}).join("")+`</div>`;
+}
+function render(){
+  tabs();
+  const c=S[si],g=$("stage");
+  if(st>5){
+    const m=score===6?"Excellent. A complete and accurate assessment.":score>=4?"Good work. Review the explanations you missed.":"Keep practising. Read the ABCDE summary above and try again.";
+    g.innerHTML=`<div class="res"><p>${c.t}</p><div class="big">${score} / 6</div><p>${m}</p>
+      <div class="row"><button class="btn" id="again" type="button">Replay this case</button>
+      <button class="btn ghost" id="next" type="button">Next case</button></div></div>`;
+    $("again").onclick=()=>start(si);
+    $("next").onclick=()=>start((si+1)%S.length);
+    return;
+  }
+  const s=cur();
+  const vit=s.v.length?`<dl class="vit">`+s.v.map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join("")+`</dl>`:"";
+  g.innerHTML=`<p class="case"><strong>Case:</strong> ${c.intro}</p>${prog()}
+    <div class="step-h"><b>${s.k}</b><h3>${s.n}</h3></div>
+    <div class="monitor"><p>${s.f}</p>${vit}</div>
+    <p class="q">${s.q}</p>
+    <div class="opts">${s.o.map((o,i)=>`<button class="opt" type="button" data-i="${i}">${o}</button>`).join("")}</div>
+    <div id="fb"></div>`;
+  g.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+  done=false;
+}
+function answer(i){
+  if(done)return;done=true;
+  const s=cur(),ok=i===s.a;
+  if(ok)score++;
+  res.push(ok);
+  document.querySelectorAll(".opt").forEach((b,j)=>{
+    b.disabled=true;
+    if(j===s.a)b.classList.add("right");
+    else if(j===i)b.classList.add("wrong");
+  });
+  const last=st===5;
+  $("fb").innerHTML=`<div class="fb ${ok?"good":"miss"}"><p><strong>${ok?"Correct.":"Not quite."}</strong> ${s.w}</p>
+    <button class="btn" id="go" type="button">${last?"See result":"Next step"}</button></div>`;
+  $("go").focus();
+  $("go").onclick=()=>{st++;render();};
+}
+
+/* Theme: follows the device setting, remembers the choice */
+const root=document.documentElement,tb=$("theme");
+function mode(){return root.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");}
+function label(){tb.textContent=mode()==="dark"?"Light mode":"Dark mode";}
+try{const t=localStorage.getItem("theme");if(t)root.dataset.theme=t;}catch(e){}
+tb.onclick=()=>{
+  const n=mode()==="dark"?"light":"dark";
+  root.dataset.theme=n;
+  try{localStorage.setItem("theme",n);}catch(e){}
+  label();
+};
+label();
+start(0);
+</script>
+</body>
+</html>
